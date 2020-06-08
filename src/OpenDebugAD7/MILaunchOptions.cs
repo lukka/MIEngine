@@ -204,6 +204,9 @@ namespace OpenDebugAD7
 
             [JsonProperty]
             public Dictionary<string, string> PipeEnv { get; set; }
+
+            [JsonProperty]
+            public bool QuoteArgs { get; set; }
         }
 
         [JsonObject]
@@ -381,7 +384,7 @@ namespace OpenDebugAD7
             return arguments;
         }
 
-        private static string CreateArgumentList(IEnumerable<string> args)
+        private static string CreateArgumentList(IEnumerable<string> args, bool quoteArgs = true)
         {
             StringBuilder stringBuilder = new StringBuilder();
             if (args != null)
@@ -391,7 +394,7 @@ namespace OpenDebugAD7
                     if (stringBuilder.Length != 0)
                         stringBuilder.Append(' ');
 
-                    stringBuilder.Append(QuoteArgument(arg));
+                    stringBuilder.Append(quoteArgs ? QuoteArgument(arg) : arg);
                 }
             }
             return stringBuilder.ToString();
@@ -699,7 +702,7 @@ namespace OpenDebugAD7
                         }
                     }
 
-                    string allArguments = CreateArgumentList(allPipeArguments);
+                    string allArguments = CreateArgumentList(allPipeArguments, jsonLaunchOptions.PipeTransport.QuoteArgs);
                     xmlLaunchOptions.Append(String.Concat("  PipeArguments='", MILaunchOptions.XmlSingleQuotedAttributeEncode(allArguments), "'\n"));
 
                     // debuggerPath has to be specified. if it isn't then the debugger is specified in PipeArg which means we can't use the same arguments for pipeCommandArgs
